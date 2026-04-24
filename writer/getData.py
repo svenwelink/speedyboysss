@@ -11,7 +11,7 @@ DBPath = "/app/data/data.db"
 RefreshInterval = 3600
 
 def getKeyChain():
-    with open("keys.json", "r") as jsonfile:
+    with open("/app/data/keys.json", "r") as jsonfile:
         keyChain = json.load(jsonfile)
     return keyChain
 
@@ -114,7 +114,7 @@ def main():
 
     conn.close()
 
-    print(activitysAdded, "Activities added to the DB")
+    print(str(datetime.time(datetime.now()))[:8], activitysAdded, "Activities added to the DB")
 
 if __name__ == "__main__":
     while True:
