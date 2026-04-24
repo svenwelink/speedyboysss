@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  writer:
+    build: ./writer
+    container_name: data-writer
+    volumes:
+      - /mnt/user/appdata/Speedyboys/data.db:/app/data/data.db
+      - /mnt/user/appdata/Speedyboys/keys.json:/app/data/keys.json
+    restart: unless-stopped
+
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
+    volumes:
+      - /mnt/user/appdata/Speedyboys/data.db:/app/data/data.db
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
