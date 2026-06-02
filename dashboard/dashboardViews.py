@@ -25,13 +25,42 @@ def getView(viewName, df):
 def distanceRunProgressionView(df=pd.DataFrame):
     # DataFrames
     dataPerDay = functionsForDashboard.getDataDistanceOverYear(df)
-    plotPerDay = px.line(dataPerDay, 
-                         x="Datum", 
-                         y="Afstand", 
-                         color="Type",
-                         color_discrete_map={"Totale afstand": "#00AAFF",
-                                             "Doel": "#FFAA00" }
-                         )
+    hoverData = (
+        dataPerDay
+        .pivot(index="Datum", columns="Type", values="Afstand")
+        .reset_index()
+    )
+
+    hoverData["Verschil"] = (
+        hoverData["Totale afstand"] - hoverData["Doel"]
+    )
+
+    dataPerDay = dataPerDay.merge(
+        hoverData[["Datum", "Totale afstand", "Doel", "Verschil"]],
+        on="Datum",
+        how="left"
+    )
+
+    plotPerDay = px.line(
+        dataPerDay,
+        x="Datum",
+        y="Afstand",
+        color="Type",
+        color_discrete_map={
+            "Totale afstand": "#00AAFF",
+            "Doel": "#FFAA00"
+        },
+        custom_data=["Totale afstand", "Doel", "Verschil"]
+    )
+
+    plotPerDay.update_traces(
+        hovertemplate=
+        "<b>%{x|%d-%m-%Y}</b><br>" +
+        "Totale afstand: %{customdata[0]:.1f} km<br>" +
+        "Doel: %{customdata[1]:.1f} km<br>" +
+        "Verschil: %{customdata[2]:.1f} km" +
+        "<extra></extra>"
+    )
 
     # Data values 
     distanceToday = round(float(str(dataPerDay[(dataPerDay["Datum"] == min(pd.Timestamp.today().normalize(), pd.Timestamp(2026, 12, 31))) &
